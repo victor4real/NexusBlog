@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
@@ -61,7 +62,7 @@ export const Footer = () => {
             &copy; {new Date().getFullYear()} NexusNews Inc. All rights reserved.
           </p>
           <p className="text-gray-600 text-xs mt-2 md:mt-0">
-            Powered by Mock Supabase & React
+            Powered by Supabase & React
           </p>
         </div>
       </div>
