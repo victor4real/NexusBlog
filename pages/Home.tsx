@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { NewsCard } from '../components/NewsCard';
 import { AdSlot } from '../components/AdSlot';
 import { dataService } from '../services/dataService';
@@ -32,8 +33,18 @@ export const Home = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
+      {/* Hero / Tagline Section - SEO Optimized */}
+      <div className="text-center py-8 mb-8 border-b border-gray-100">
+        <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4 tracking-tight">
+          Discover the World's Pulse
+        </h1>
+        <p className="text-xl text-gray-500 max-w-2xl mx-auto font-light">
+          Your home for fresh insights, real stories, and meaningful conversations across Technology, Business, and Culture.
+        </p>
+      </div>
+
       {/* Top Ad Slot */}
-      <div className="mb-8">
+      <div className="mb-10">
         <AdSlot format="horizontal" />
       </div>
 
@@ -98,10 +109,10 @@ export const Home = () => {
             <ul className="space-y-2">
               {['Technology', 'Business', 'Politics', 'Science', 'Health'].map(cat => (
                 <li key={cat}>
-                  <a href="#" className="flex items-center justify-between group">
+                  <Link to={`/category/${cat.toLowerCase()}`} className="flex items-center justify-between group">
                     <span className="text-gray-600 group-hover:text-primary transition-colors">{cat}</span>
                     <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-primary transition-colors" />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

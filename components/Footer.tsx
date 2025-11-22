@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
@@ -41,9 +40,8 @@ export const Footer = () => {
             <h3 className="text-sm font-semibold text-gray-200 uppercase tracking-wider mb-4">Company</h3>
             <ul className="space-y-2">
               <li><Link to="/about" className="text-gray-400 hover:text-white text-sm transition-colors">About Us</Link></li>
-              <li><Link to="/contact" className="text-gray-400 hover:text-white text-sm transition-colors">Contact</Link></li>
-              <li><Link to="/careers" className="text-gray-400 hover:text-white text-sm transition-colors">Careers</Link></li>
-              <li><Link to="/advertise" className="text-gray-400 hover:text-white text-sm transition-colors">Advertise</Link></li>
+              <li><Link to="/contact" className="text-gray-400 hover:text-white text-sm transition-colors">Contact Us</Link></li>
+              <li><Link to="/contact" className="text-gray-400 hover:text-white text-sm transition-colors">Advertise</Link></li>
             </ul>
           </div>
 
@@ -51,7 +49,7 @@ export const Footer = () => {
             <h3 className="text-sm font-semibold text-gray-200 uppercase tracking-wider mb-4">Legal</h3>
             <ul className="space-y-2">
               <li><Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</Link></li>
+              <li><Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">Terms & Conditions</Link></li>
               <li><Link to="/sitemap.xml" className="text-gray-400 hover:text-white text-sm transition-colors">Sitemap</Link></li>
             </ul>
           </div>

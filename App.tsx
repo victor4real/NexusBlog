@@ -7,6 +7,10 @@ import { Home } from './pages/Home';
 import { PostDetail } from './pages/PostDetail';
 import { Login } from './pages/Login';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { About } from './pages/About';
+import { Contact } from './pages/Contact';
+import { Privacy } from './pages/Privacy';
+import { Terms } from './pages/Terms';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -34,10 +38,11 @@ function App() {
             
             <Route path="/admin" element={<AdminDashboard />} />
             
-            {/* Static Pages Fallbacks */}
-            <Route path="/about" element={<div className="p-10 text-center">About Page Placeholder</div>} />
-            <Route path="/contact" element={<div className="p-10 text-center">Contact Page Placeholder</div>} />
-            <Route path="/privacy" element={<div className="p-10 text-center">Privacy Policy Placeholder</div>} />
+            {/* Static Pages */}
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
