@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { dataService } from '../services/dataService';
 import { User, Comment, Post, UserRole } from '../types';
-import { Shield, Users, MessageSquare, FileText, Check, X, AlertTriangle, Share2, Pause, Play, Facebook, Twitter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CATEGORIES } from '../constants';
+import { Shield, Users, MessageSquare, FileText, Check, X, AlertTriangle, Share2, Pause, Play, Facebook, Twitter, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 5;
 
 export const AdminDashboard = () => {
-  const { isAdmin, isModerator } = useAuth();
+  const { user, isAdmin, isModerator } = useAuth();
   const [activeTab, setActiveTab] = useState<'users' | 'comments' | 'posts'>('posts');
   
   const [users, setUsers] = useState<User[]>([]);
@@ -17,6 +18,17 @@ export const AdminDashboard = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Create Post Modal State
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newPost, setNewPost] = useState({
+    title: '',
+    excerpt: '',
+    content: '',
+    category: 'Technology',
+    image_url: 'https://picsum.photos/id/10/800/400',
+    is_published: false
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +78,31 @@ export const AdminDashboard = () => {
     if(!confirm(`Post to ${platform}?`)) return;
     await dataService.publishToSocial(id, platform);
     alert(`Successfully queued for ${platform}`);
+    setRefresh(p => p + 1);
+  };
+
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPost.title || !newPost.content) {
+      alert("Title and Content are required");
+      return;
+    }
+
+    await dataService.createPost({
+      ...newPost,
+      author: user?.name || 'Admin',
+      published_at: new Date().toISOString()
+    });
+
+    setIsCreateModalOpen(false);
+    setNewPost({
+      title: '',
+      excerpt: '',
+      content: '',
+      category: 'Technology',
+      image_url: 'https://picsum.photos/id/10/800/400',
+      is_published: false
+    });
     setRefresh(p => p + 1);
   };
 
@@ -188,6 +225,16 @@ export const AdminDashboard = () => {
         {/* POSTS TAB */}
         {activeTab === 'posts' && (
           <div className="flex flex-col">
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+               <h3 className="text-lg font-medium text-gray-900">All Articles</h3>
+               <button 
+                 onClick={() => setIsCreateModalOpen(true)}
+                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+               >
+                 <Plus className="w-4 h-4 mr-2" />
+                 New Post
+               </button>
+            </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -351,6 +398,114 @@ export const AdminDashboard = () => {
         )}
 
       </div>
+
+      {/* Create Post Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={() => setIsCreateModalOpen(false)}></div>
+
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">Create New Post</h3>
+                  <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-400 hover:text-gray-500">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                
+                <form onSubmit={handleCreatePost}>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Title</label>
+                      <input 
+                        type="text" 
+                        required
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                        value={newPost.title}
+                        onChange={e => setNewPost({...newPost, title: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Excerpt</label>
+                      <input 
+                        type="text" 
+                        required
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                        value={newPost.excerpt}
+                        onChange={e => setNewPost({...newPost, excerpt: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Content</label>
+                      <textarea 
+                        rows={5}
+                        required
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                        value={newPost.content}
+                        onChange={e => setNewPost({...newPost, content: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Category</label>
+                        <select 
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                          value={newPost.category}
+                          onChange={e => setNewPost({...newPost, category: e.target.value})}
+                        >
+                          {CATEGORIES.map(cat => (
+                            <option key={cat.id} value={cat.name}>{cat.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Image URL</label>
+                        <input 
+                          type="text" 
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                          value={newPost.image_url}
+                          onChange={e => setNewPost({...newPost, image_url: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center mt-4">
+                       <input
+                        id="is_published"
+                        name="is_published"
+                        type="checkbox"
+                        className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                        checked={newPost.is_published}
+                        onChange={e => setNewPost({...newPost, is_published: e.target.checked})}
+                      />
+                      <label htmlFor="is_published" className="ml-2 block text-sm text-gray-900">
+                        Publish immediately
+                      </label>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse -mx-6 -mb-6 mt-6 border-t border-gray-200 rounded-b-lg">
+                    <button 
+                      type="submit" 
+                      className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm"
+                    >
+                      Create Post
+                    </button>
+                    <button 
+                      type="button" 
+                      className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                      onClick={() => setIsCreateModalOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
