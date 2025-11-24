@@ -16,9 +16,8 @@ export const AdSlot: React.FC<AdSlotProps> = ({
 }) => {
   const adRef = useRef<HTMLModElement>(null);
   
-  // Check if we are in development mode
-  // @ts-ignore
-  const isDev = import.meta.env.DEV; 
+  // Safe access to environment variable to prevent crashes
+  const isDev = (import.meta as any).env?.DEV ?? false;
 
   useEffect(() => {
     // We only want to push the ad if we are NOT in dev mode

@@ -5,7 +5,8 @@ import { supabase } from '../lib/supabaseClient';
 // Helper to detect if Supabase is actually configured
 const isSupabaseConfigured = () => {
   // @ts-ignore
-  return supabase.supabaseUrl !== 'https://your-project-id.supabase.co';
+  const url = (import.meta as any).env?.VITE_SUPABASE_URL || supabase.supabaseUrl;
+  return url && url !== 'https://your-project-id.supabase.co';
 };
 
 class DataService {
@@ -13,6 +14,34 @@ class DataService {
   private posts: Post[] = [...MOCK_POSTS];
   private comments: Comment[] = [...MOCK_COMMENTS];
   private users: User[] = [...MOCK_USERS];
+
+  // --- Storage ---
+  async uploadImage(file: File, bucket: 'avatars' | 'post-images'): Promise<string | null> {
+    if (isSupabaseConfigured()) {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file);
+
+        if (uploadError) {
+          console.error('Upload Error:', uploadError);
+          throw uploadError;
+        }
+
+        const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+        return data.publicUrl;
+      } catch (error) {
+        console.error('Failed to upload image:', error);
+        return null;
+      }
+    }
+
+    // Mock upload
+    console.log(`[Mock] Uploading ${file.name} to ${bucket}`);
+    return URL.createObjectURL(file);
+  }
 
   // --- Posts ---
   async getPosts(publishedOnly = true): Promise<Post[]> {
@@ -78,7 +107,11 @@ class DataService {
         .select()
         .single();
       
-      if (!error && data) return data as Post;
+      if (error) {
+        console.error("Supabase Create Post Error:", error);
+        throw new Error(error.message);
+      }
+      if (data) return data as Post;
     }
 
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -94,8 +127,6 @@ class DataService {
 
   async publishToSocial(id: string, platform: 'facebook' | 'twitter'): Promise<void> {
     if (isSupabaseConfigured()) {
-      // This usually requires a more complex logic (fetching current json, updating one key)
-      // Simplified for example:
       const { data: post } = await supabase.from('posts').select('social_posted').eq('id', id).single();
       if (post) {
         const updatedSocial = { ...post.social_posted, [platform]: true };
@@ -172,6 +203,18 @@ class DataService {
     return this.users;
   }
 
+  async updateProfile(id: string, updates: Partial<User>): Promise<void> {
+     if (isSupabaseConfigured()) {
+        const { error } = await supabase.from('profiles').update(updates).eq('id', id);
+        if (error) throw error;
+        return;
+     }
+     const user = this.users.find(u => u.id === id);
+     if (user) {
+        Object.assign(user, updates);
+     }
+  }
+
   async toggleUserSuspension(id: string): Promise<void> {
     if (isSupabaseConfigured()) {
        const { data: user } = await supabase.from('profiles').select('is_suspended').eq('id', id).single();
@@ -197,6 +240,18 @@ class DataService {
     if (user) {
       user.role = role;
     }
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    if (isSupabaseConfigured()) {
+       // Note: Deleting from 'profiles' usually cascades to 'comments' if configured in DB.
+       // Deleting from auth.users requires service role, which is not available in client-side.
+       // We will just delete the profile data for now.
+       const { error } = await supabase.from('profiles').delete().eq('id', id);
+       if (error) throw error;
+       return;
+    }
+    this.users = this.users.filter(u => u.id !== id);
   }
 }
 

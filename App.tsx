@@ -11,8 +11,9 @@ import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
+import { Profile } from './pages/Profile';
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -36,6 +37,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Login />} />
             
+            <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<AdminDashboard />} />
             
             {/* Static Pages */}

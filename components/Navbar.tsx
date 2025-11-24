@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, User, Shield, LogOut, Search } from 'lucide-react';
+import { Menu, X, User as UserIcon, Shield, LogOut, Search, Settings } from 'lucide-react';
 import { CATEGORIES } from '../constants';
 
 export const Navbar = () => {
@@ -57,10 +57,18 @@ export const Navbar = () => {
                   </Link>
                 )}
                 <div className="flex items-center space-x-2 border-l pl-4 border-gray-200">
-                    <span className="text-sm font-medium text-gray-700">{user?.name}</span>
+                    <Link to="/profile" className="flex items-center text-sm font-medium text-gray-700 hover:text-primary transition-colors">
+                      {user?.avatar_url ? (
+                        <img src={user.avatar_url} alt="" className="w-6 h-6 rounded-full mr-2 object-cover"/>
+                      ) : (
+                        <UserIcon className="w-5 h-5 mr-2" />
+                      )}
+                      {user?.name}
+                    </Link>
                     <button 
                       onClick={handleLogout}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      className="text-gray-400 hover:text-red-500 transition-colors ml-2"
+                      title="Logout"
                     >
                       <LogOut className="w-5 h-5" />
                     </button>
@@ -109,25 +117,41 @@ export const Navbar = () => {
             {isAuthenticated ? (
               <div className="space-y-2">
                 <div className="flex items-center mb-3">
-                  <div className="ml-2">
+                  <div className="flex-shrink-0">
+                    {user?.avatar_url ? (
+                      <img className="h-10 w-10 rounded-full object-cover" src={user.avatar_url} alt="" />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center"><UserIcon className="h-6 w-6 text-gray-500"/></div>
+                    )}
+                  </div>
+                  <div className="ml-3">
                     <div className="text-base font-medium text-gray-800">{user?.name}</div>
                     <div className="text-sm font-medium text-gray-500">{user?.email}</div>
                   </div>
                 </div>
+                
+                <Link 
+                    to="/profile" 
+                    className="block w-full text-left px-3 py-2 text-base font-medium text-gray-600 hover:bg-gray-50 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <div className="flex items-center"><Settings className="w-4 h-4 mr-2"/> Profile Settings</div>
+                </Link>
+
                  {(isAdmin || isModerator) && (
                   <Link 
                     to="/admin" 
                     className="block w-full text-left px-3 py-2 text-base font-medium text-gray-600 hover:bg-gray-50 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Admin Dashboard
+                   <div className="flex items-center"><Shield className="w-4 h-4 mr-2"/> Admin Dashboard</div>
                   </Link>
                 )}
                 <button 
                   onClick={() => { handleLogout(); setIsMenuOpen(false); }}
                   className="block w-full text-left px-3 py-2 text-base font-medium text-red-600 hover:bg-red-50 rounded-md"
                 >
-                  Sign out
+                  <div className="flex items-center"><LogOut className="w-4 h-4 mr-2"/> Sign out</div>
                 </button>
               </div>
             ) : (
