@@ -5,6 +5,7 @@ import { dataService } from '../services/dataService';
 import { AdSlot } from '../components/AdSlot';
 import { useAuth } from '../context/AuthContext';
 import { Facebook, Twitter, Link2, Clock, User as UserIcon } from 'lucide-react';
+import { ADSENSE_SLOTS } from '../constants';
 
 export const PostDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -94,7 +95,8 @@ export const PostDetail = () => {
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
         
         <div className="my-8">
-          <AdSlot format="horizontal" />
+          {/* In-Article Ad */}
+          <AdSlot adSlot={ADSENSE_SLOTS.IN_ARTICLE} format="horizontal" />
         </div>
 
         <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>

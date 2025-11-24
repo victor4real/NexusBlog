@@ -45,3 +45,10 @@ export interface Comment {
   status: 'approved' | 'pending' | 'flagged' | 'rejected';
   created_at: string;
 }
+
+// Google AdSense Global Definition
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
+}

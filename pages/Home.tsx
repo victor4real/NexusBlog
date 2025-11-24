@@ -5,6 +5,7 @@ import { AdSlot } from '../components/AdSlot';
 import { dataService } from '../services/dataService';
 import { Post } from '../types';
 import { TrendingUp, ArrowRight } from 'lucide-react';
+import { ADSENSE_SLOTS } from '../constants';
 
 export const Home = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -45,7 +46,7 @@ export const Home = () => {
 
       {/* Top Ad Slot */}
       <div className="mb-10">
-        <AdSlot format="horizontal" />
+        <AdSlot adSlot={ADSENSE_SLOTS.HOME_TOP} format="horizontal" />
       </div>
 
       {/* Hero Section */}
@@ -85,7 +86,7 @@ export const Home = () => {
         <aside className="space-y-8">
           
           {/* Sidebar Ad */}
-          <AdSlot format="rectangle" />
+          <AdSlot adSlot={ADSENSE_SLOTS.SIDEBAR} format="rectangle" />
 
           {/* Newsletter */}
           <div className="bg-slate-50 p-6 rounded-lg border border-slate-100">

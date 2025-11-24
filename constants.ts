@@ -1,5 +1,16 @@
 import { User, Post, Comment, UserRole } from './types';
 
+// ------------------------------------------------
+// GOOGLE ADSENSE CONFIGURATION
+// ------------------------------------------------
+// REPLACE THESE WITH YOUR ACTUAL VALUES FROM GOOGLE ADSENSE DASHBOARD
+export const ADSENSE_CLIENT_ID = 'ca-pub-XXXXXXXXXXXXXXXX'; // Your Publisher ID
+export const ADSENSE_SLOTS = {
+  HOME_TOP: '1234567890',      // Create a "Display - Horizontal" unit
+  SIDEBAR: '0987654321',       // Create a "Display - Square/Vertical" unit
+  IN_ARTICLE: '1122334455'     // Create a "In-article" unit
+};
+
 // Mock Users
 export const MOCK_USERS: User[] = [
   {
