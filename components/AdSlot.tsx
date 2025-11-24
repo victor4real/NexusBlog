@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { ADSENSE_CLIENT_ID } from '../constants';
 
@@ -16,8 +17,14 @@ export const AdSlot: React.FC<AdSlotProps> = ({
 }) => {
   const adRef = useRef<HTMLModElement>(null);
   
-  // Safe access to environment variable to prevent crashes
-  const isDev = (import.meta as any).env?.DEV ?? false;
+  // Safe access to environment variable
+  const isDev = React.useMemo(() => {
+    try {
+      return (import.meta as any).env?.DEV ?? false;
+    } catch {
+      return false;
+    }
+  }, []);
 
   useEffect(() => {
     // We only want to push the ad if we are NOT in dev mode

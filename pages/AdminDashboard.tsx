@@ -231,7 +231,7 @@ export const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {getPaginatedData(posts).map(post => (
+                  {getPaginatedData<Post>(posts).map(post => (
                     <tr key={post.id}>
                       <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900 truncate max-w-xs">{post.title}</div></td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{post.author}</td>
@@ -268,7 +268,7 @@ export const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {getPaginatedData(comments).map(comment => (
+                  {getPaginatedData<Comment>(comments).map(comment => (
                     <tr key={comment.id} className={comment.status === 'pending' ? 'bg-orange-50' : ''}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{comment.user_name}</td>
                       <td className="px-6 py-4 text-sm text-gray-500 max-w-md break-words">{comment.content}</td>
@@ -304,7 +304,7 @@ export const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {getPaginatedData(users).map(u => (
+                  {getPaginatedData<User>(users).map(u => (
                     <tr key={u.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">

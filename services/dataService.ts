@@ -1,12 +1,20 @@
+
 import { MOCK_POSTS, MOCK_COMMENTS, MOCK_USERS } from '../constants';
 import { Post, Comment, User, UserRole } from '../types';
 import { supabase } from '../lib/supabaseClient';
 
 // Helper to detect if Supabase is actually configured
 const isSupabaseConfigured = () => {
-  // @ts-ignore
-  const url = (import.meta as any).env?.VITE_SUPABASE_URL || supabase.supabaseUrl;
-  return url && url !== 'https://your-project-id.supabase.co';
+  try {
+    // @ts-ignore
+    const envUrl = (import.meta as any).env?.VITE_SUPABASE_URL;
+    const url = envUrl || supabase.supabaseUrl;
+    // Check if it's the placeholder or a real URL
+    return url && url !== 'https://your-project-id.supabase.co';
+  } catch (e) {
+    // If accessing import.meta throws, fallback to checking the client directly
+    return !!supabase.supabaseUrl && supabase.supabaseUrl !== 'https://your-project-id.supabase.co';
+  }
 };
 
 class DataService {
@@ -244,9 +252,8 @@ class DataService {
 
   async deleteUser(id: string): Promise<void> {
     if (isSupabaseConfigured()) {
-       // Note: Deleting from 'profiles' usually cascades to 'comments' if configured in DB.
-       // Deleting from auth.users requires service role, which is not available in client-side.
-       // We will just delete the profile data for now.
+       // Manual cascade for safety, though DB should handle it if configured
+       await supabase.from('comments').delete().eq('user_id', id);
        const { error } = await supabase.from('profiles').delete().eq('id', id);
        if (error) throw error;
        return;
