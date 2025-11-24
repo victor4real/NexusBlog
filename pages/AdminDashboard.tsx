@@ -74,12 +74,13 @@ export const AdminDashboard = () => {
   };
 
   const handleDeleteUser = async (id: string) => {
-    if(!confirm("WARNING: This will delete the user profile and data. Proceed?")) return;
+    if(!confirm("WARNING: This will delete the user profile and all their comments. Proceed?")) return;
     try {
       await dataService.deleteUser(id);
       setRefresh(p => p + 1);
     } catch (e) {
-      alert("Failed to delete user.");
+      console.error(e);
+      alert("Failed to delete user. Ensure you have Admin permissions and configured RLS policies.");
     }
   };
 
@@ -108,8 +109,11 @@ export const AdminDashboard = () => {
         const url = await dataService.uploadImage(e.target.files[0], 'post-images');
         if (url) {
            setNewPost({ ...newPost, image_url: url });
+        } else {
+          alert("Upload failed. Check console for details.");
         }
       } catch (err) {
+        console.error(err);
         alert("Image upload failed");
       } finally {
         setUploadingImage(false);
@@ -143,7 +147,8 @@ export const AdminDashboard = () => {
       setRefresh(p => p + 1);
       alert("Post created successfully!");
     } catch (error) {
-      alert("Failed to create post. See console.");
+      console.error("Create Post Error:", error);
+      alert("Failed to create post. Check console for details.");
     }
   };
 
@@ -215,7 +220,7 @@ export const AdminDashboard = () => {
           <div className="flex flex-col">
             <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                <h3 className="text-lg font-medium text-gray-900">All Articles</h3>
-               <button onClick={() => setIsCreateModalOpen(true)} className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700">
+               <button onClick={() => setIsCreateModalOpen(true)} className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 transition-colors">
                  <Plus className="w-4 h-4 mr-2" /> New Post
                </button>
             </div>
@@ -238,8 +243,8 @@ export const AdminDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${post.is_published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{post.is_published ? 'Published' : 'Draft'}</span></td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div className="flex space-x-2">
-                          <Facebook className={`w-4 h-4 ${post.social_posted.facebook ? 'text-blue-600' : 'text-gray-300'}`} />
-                          <Twitter className={`w-4 h-4 ${post.social_posted.twitter ? 'text-sky-500' : 'text-gray-300'}`} />
+                          <Facebook className={`w-4 h-4 ${post.social_posted?.facebook ? 'text-blue-600' : 'text-gray-300'}`} />
+                          <Twitter className={`w-4 h-4 ${post.social_posted?.twitter ? 'text-sky-500' : 'text-gray-300'}`} />
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -358,9 +363,9 @@ export const AdminDashboard = () => {
         )}
       </div>
 
-      {/* CREATE POST MODAL - COMPREHENSIVE */}
+      {/* CREATE POST MODAL - Z-INDEX UPDATED TO z-[60] */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setIsCreateModalOpen(false)}></div>
             <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
@@ -487,7 +492,7 @@ export const AdminDashboard = () => {
                 </div>
                 
                 <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
-                  <button type="submit" className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm">
+                  <button type="submit" disabled={uploadingImage} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
                     Create Post
                   </button>
                   <button type="button" className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" onClick={() => setIsCreateModalOpen(false)}>

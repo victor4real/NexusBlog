@@ -6,14 +6,11 @@ import { supabase } from '../lib/supabaseClient';
 // Helper to detect if Supabase is actually configured
 const isSupabaseConfigured = () => {
   try {
-    // @ts-ignore
-    const envUrl = (import.meta as any).env?.VITE_SUPABASE_URL;
-    const url = envUrl || supabase.supabaseUrl;
-    // Check if it's the placeholder or a real URL
-    return url && url !== 'https://your-project-id.supabase.co';
-  } catch (e) {
-    // If accessing import.meta throws, fallback to checking the client directly
+    // Check if it's the placeholder or a real URL by checking the supabase instance directly
+    // We assume the client initialized in lib/supabaseClient.ts handles env vars correctly
     return !!supabase.supabaseUrl && supabase.supabaseUrl !== 'https://your-project-id.supabase.co';
+  } catch (e) {
+    return false;
   }
 };
 
@@ -35,6 +32,7 @@ class DataService {
 
         if (uploadError) {
           console.error('Upload Error:', uploadError);
+          // Even if upload fails (e.g. RLS), we throw so the UI knows
           throw uploadError;
         }
 
@@ -105,6 +103,8 @@ class DataService {
 
   async createPost(postData: Omit<Post, 'id' | 'views' | 'social_posted'>): Promise<Post> {
     if (isSupabaseConfigured()) {
+      // IMPORTANT: DB Default for social_posted might be missing if table created early.
+      // We explicitly send it to avoid issues.
       const { data, error } = await supabase
         .from('posts')
         .insert([{
@@ -137,7 +137,8 @@ class DataService {
     if (isSupabaseConfigured()) {
       const { data: post } = await supabase.from('posts').select('social_posted').eq('id', id).single();
       if (post) {
-        const updatedSocial = { ...post.social_posted, [platform]: true };
+        const currentSocial = post.social_posted || { facebook: false, twitter: false };
+        const updatedSocial = { ...currentSocial, [platform]: true };
         await supabase.from('posts').update({ social_posted: updatedSocial }).eq('id', id);
       }
       return;
@@ -252,10 +253,15 @@ class DataService {
 
   async deleteUser(id: string): Promise<void> {
     if (isSupabaseConfigured()) {
-       // Manual cascade for safety, though DB should handle it if configured
+       // Manual cascade: delete comments first
        await supabase.from('comments').delete().eq('user_id', id);
+       // Then delete profile
        const { error } = await supabase.from('profiles').delete().eq('id', id);
-       if (error) throw error;
+       
+       if (error) {
+         console.error("Error deleting user profile:", error);
+         throw error;
+       }
        return;
     }
     this.users = this.users.filter(u => u.id !== id);
